@@ -1,0 +1,1273 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MikeyArcade - Ultimate Neon Gaming Hub</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        arcade: {
+                            bg: '#0a0b10',
+                            card: '#121520',
+                            cardHover: '#1a1f30',
+                            neonCyan: '#00f0ff',
+                            neonPurple: '#b000ff',
+                            neonPink: '#ff007f',
+                            neonGreen: '#00ff66'
+                        }
+                    },
+                    boxShadow: {
+                        'neon-cyan': '0 0 15px rgba(0, 240, 255, 0.5)',
+                        'neon-purple': '0 0 15px rgba(176, 0, 255, 0.5)',
+                        'neon-pink': '0 0 15px rgba(255, 0, 127, 0.5)',
+                        'neon-green': '0 0 15px rgba(0, 255, 102, 0.5)',
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome for Gaming Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Inter:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0a0b10;
+            color: #f3f4f6;
+            overflow-x: hidden;
+            touch-action: manipulation;
+        }
+        h1, h2, h3, .arcade-font {
+            font-family: 'Orbitron', sans-serif;
+        }
+        .neon-glow-cyan {
+            text-shadow: 0 0 10px rgba(0, 240, 255, 0.7), 0 0 20px rgba(0, 240, 255, 0.5);
+        }
+        .neon-glow-purple {
+            text-shadow: 0 0 10px rgba(176, 0, 255, 0.7), 0 0 20px rgba(176, 0, 255, 0.5);
+        }
+        .neon-border-cyan {
+            border: 2px solid #00f0ff;
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.4), inset 0 0 15px rgba(0, 240, 255, 0.2);
+        }
+        .neon-border-pink {
+            border: 2px solid #ff007f;
+            box-shadow: 0 0 15px rgba(255, 0, 127, 0.4), inset 0 0 15px rgba(255, 0, 127, 0.2);
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0a0b10;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1a1f30;
+            border-radius: 4px;
+            border: 1px solid #00f0ff;
+        }
+        /* Modal Backdrop Blur */
+        .modal-backdrop {
+            background: rgba(10, 11, 16, 0.85);
+            backdrop-filter: blur(8px);
+        }
+        canvas {
+            display: block;
+            margin: 0 auto;
+            background: #050508;
+            border-radius: 0.5rem;
+            max-width: 100%;
+            touch-action: none;
+        }
+    </style>
+</head>
+<body class="bg-arcade-bg min-h-screen flex flex-col selection:bg-cyan-500 selection:text-black">
+
+    <!-- Header -->
+    <header class="sticky top-0 z-40 bg-arcade-card/90 border-b border-cyan-500/30 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-cyan-500 to-purple-600 flex items-center justify-center shadow-neon-cyan transform hover:rotate-12 transition duration-300">
+                    <i class="fa-solid fa-gamepad text-2xl text-black font-black"></i>
+                </div>
+                <div>
+                    <span class="text-2xl sm:text-3xl font-black tracking-wider uppercase bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-500 bg-clip-text text-transparent neon-glow-cyan">MikeyArcade</span>
+                    <span class="block text-xs text-cyan-400 tracking-widest font-semibold">NEXT-GEN WEB ARCADE</span>
+                </div>
+            </div>
+            
+            <div class="hidden md:flex items-center space-x-6">
+                <a href="#games" class="text-sm font-semibold text-gray-300 hover:text-cyan-400 transition">Games Library</a>
+                <a href="#stats" class="text-sm font-semibold text-gray-300 hover:text-cyan-400 transition">Player Stats</a>
+                <div class="px-4 py-2 rounded-lg bg-cyan-950/40 border border-cyan-500/40 text-cyan-400 text-sm font-bold flex items-center gap-2 shadow-neon-cyan">
+                    <i class="fa-solid fa-fire text-pink-500"></i> <span id="globalScoreBadge">0 XP</span>
+                </div>
+            </div>
+
+            <div class="flex md:hidden items-center">
+                <button id="mobileMenuBtn" class="text-cyan-400 p-2 focus:outline-none text-2xl">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+            </div>
+        </div>
+        <!-- Mobile Dropdown -->
+        <div id="mobileMenu" class="hidden md:hidden bg-arcade-card border-b border-cyan-500/30 px-4 pt-2 pb-4 space-y-3">
+            <a href="#games" class="block text-gray-300 hover:text-cyan-400 font-medium">Games Library</a>
+            <a href="#stats" class="block text-gray-300 hover:text-cyan-400 font-medium">Player Stats</a>
+            <div class="text-cyan-400 text-sm font-bold flex items-center gap-2 pt-2 border-t border-gray-800">
+                <i class="fa-solid fa-fire text-pink-500"></i> XP: <span id="mobileGlobalScore">0</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Banner -->
+    <section class="relative py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-purple-950/20 via-arcade-bg to-arcade-bg overflow-hidden">
+        <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#00f0ff_1px,transparent_1px)] [background-size:24px_24px] pointer-events-none"></div>
+        <div class="max-w-5xl mx-auto text-center relative z-10">
+            <span class="px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest bg-pink-500/10 text-pink-400 border border-pink-500/30 shadow-neon-pink inline-block mb-6">
+                ⚡ 12 Fully Playable Retro & Modern Games
+            </span>
+            <h1 class="text-4xl sm:text-6xl lg:text-7xl font-black uppercase tracking-tight mb-6">
+                Play Instantly, <br><span class="bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500 bg-clip-text text-transparent neon-glow-cyan">Conquer The Leaderboard</span>
+            </h1>
+            <p class="text-gray-400 text-base sm:text-xl max-w-2xl mx-auto mb-10 font-normal">
+                No downloads, no lag. Pure arcade action optimized for desktop and mobile touch devices with local score persistence.
+            </p>
+            <div class="flex flex-wrap justify-center gap-4">
+                <a href="#games" class="px-8 py-4 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-black font-black uppercase tracking-wider shadow-neon-cyan hover:scale-105 transition transform duration-200">
+                    <i class="fa-solid fa-play mr-2"></i> Explore Games
+                </a>
+                <button onclick="openRandomGame()" class="px-8 py-4 rounded-xl bg-arcade-card hover:bg-arcade-cardHover border border-purple-500 text-purple-400 font-black uppercase tracking-wider shadow-neon-purple hover:scale-105 transition transform duration-200">
+                    <i class="fa-solid fa-shuffle mr-2"></i> Random Play
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Games Library Section -->
+    <main id="games" class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 w-full">
+        <div class="flex flex-col md:flex-row md:items-end justify-between mb-10">
+            <div>
+                <h2 class="text-2xl sm:text-4xl font-extrabold uppercase tracking-wider text-white flex items-center gap-3">
+                    <span class="w-3 h-8 bg-cyan-400 rounded-sm inline-block shadow-neon-cyan"></span> Arcade Vault
+                </h2>
+                <p class="text-gray-400 text-sm mt-1">Select any game below to launch instant gameplay session.</p>
+            </div>
+            <!-- Search & Filter bar -->
+            <div class="mt-4 md:mt-0 flex items-center gap-3">
+                <div class="relative w-full sm:w-72">
+                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </span>
+                    <input type="text" id="gameSearch" placeholder="Search 12 games..." class="w-full pl-10 pr-4 py-2.5 rounded-xl bg-arcade-card border border-cyan-500/30 text-white placeholder-gray-500 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 text-sm">
+                </div>
+            </div>
+        </div>
+
+        <!-- Games Grid -->
+        <div id="gamesGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <!-- Game Card Item Generator via JS or pre-rendered -->
+        </div>
+    </main>
+
+    <!-- Player Stats Bar -->
+    <section id="stats" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full">
+        <div class="p-6 sm:p-8 rounded-2xl bg-arcade-card border border-purple-500/30 shadow-neon-purple flex flex-col md:flex-row items-center justify-between gap-6">
+            <div class="flex items-center gap-4">
+                <div class="w-16 h-16 rounded-2xl bg-purple-950/50 border border-purple-500 flex items-center justify-center text-purple-400 text-3xl shadow-neon-purple">
+                    <i class="fa-solid fa-trophy"></i>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold text-white uppercase">Gamer Profile Stats</h3>
+                    <p class="text-gray-400 text-sm">Your achievements and high scores stored locally.</p>
+                </div>
+            </div>
+            <div class="grid grid-cols-3 gap-4 sm:gap-8 w-full md:w-auto text-center">
+                <div class="bg-black/40 p-4 rounded-xl border border-cyan-500/20">
+                    <span class="block text-xs text-gray-400 uppercase font-semibold">Total Score XP</span>
+                    <span id="statTotalScore" class="text-xl sm:text-2xl font-black text-cyan-400">0</span>
+                </div>
+                <div class="bg-black/40 p-4 rounded-xl border border-purple-500/20">
+                    <span class="block text-xs text-gray-400 uppercase font-semibold">Games Played</span>
+                    <span id="statGamesPlayed" class="text-xl sm:text-2xl font-black text-purple-400">0</span>
+                </div>
+                <div class="bg-black/40 p-4 rounded-xl border border-pink-500/20">
+                    <span class="block text-xs text-gray-400 uppercase font-semibold">Highscore Record</span>
+                    <span id="statHighScore" class="text-xl sm:text-2xl font-black text-pink-400">0</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Game Modal Container -->
+    <div id="gameModal" class="fixed inset-0 z-50 hidden flex items-center justify-center modal-backdrop p-2 sm:p-4">
+        <div id="modalContainer" class="bg-arcade-card w-full max-w-4xl rounded-2xl neon-border-cyan flex flex-col max-h-[95vh] overflow-hidden transform scale-95 transition-transform duration-300">
+            <!-- Modal Header -->
+            <div class="px-6 py-4 bg-black/60 border-b border-cyan-500/30 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <span id="modalGameIcon" class="text-2xl text-cyan-400"></span>
+                    <h3 id="modalGameTitle" class="text-xl sm:text-2xl font-black uppercase text-white tracking-wider">Game Title</h3>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="hidden sm:flex items-center gap-2 text-sm bg-cyan-950/50 px-3 py-1 rounded-lg border border-cyan-500/40 text-cyan-300">
+                        <span>Highscore:</span> <span id="modalHighScore" class="font-bold">0</span>
+                    </div>
+                    <button onclick="closeGameModal()" class="w-10 h-10 rounded-xl bg-red-500/20 border border-red-500/50 text-red-400 hover:bg-red-500 hover:text-white transition flex items-center justify-center text-xl focus:outline-none">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Modal Body (Dynamic Game Canvas / Interface) -->
+            <div id="modalGameBody" class="p-4 sm:p-6 overflow-y-auto flex-grow flex flex-col items-center justify-center relative bg-[#07080c]">
+                <!-- Game Specific UI Injected Dynamically -->
+            </div>
+
+            <!-- Modal Footer / Controls Help -->
+            <div id="modalFooter" class="px-6 py-3 bg-black/60 border-t border-cyan-500/30 flex flex-wrap items-center justify-between text-xs text-gray-400">
+                <div id="modalControlsHelp" class="flex items-center gap-2">
+                    <i class="fa-solid fa-keyboard text-cyan-400"></i> Use keyboard or on-screen touch controls to play.
+                </div>
+                <button onclick="closeGameModal()" class="px-4 py-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-200 font-semibold transition">
+                    Exit Game (ESC)
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-arcade-card border-t border-cyan-500/20 py-8 mt-12 text-center text-sm text-gray-500">
+        <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center space-x-2">
+                <span class="w-3 h-3 rounded-full bg-cyan-400 animate-pulse"></span>
+                <span class="font-bold text-gray-300">MikeyArcade © 2026</span>
+            </div>
+            <p>All 12 arcade games fully playable with vanilla JS & HTML5 Canvas.</p>
+            <div class="flex space-x-4 text-cyan-400 text-lg">
+                <a href="#" class="hover:text-white transition"><i class="fa-brands fa-github"></i></a>
+                <a href="#" class="hover:text-white transition"><i class="fa-brands fa-discord"></i></a>
+                <a href="#" class="hover:text-white transition"><i class="fa-brands fa-twitter"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript Application Engine -->
+    <script>
+        const gamesData = [
+            { id: 'tictactoe', name: 'Tic Tac Toe', category: 'Puzzle', icon: 'fa-solid fa-hashtag', color: 'cyan', desc: 'Classic 2-player tactical grid showdown.' },
+            { id: 'snake', name: 'Snake Neon', category: 'Retro', icon: 'fa-solid fa-worm', color: 'green', desc: 'Eat glowing orbs, grow longer, avoid walls.' },
+            { id: 'memory', name: 'Memory Match', category: 'Puzzle', icon: 'fa-solid fa-brain', color: 'purple', desc: 'Match pairs of cybernetic arcade cards.' },
+            { id: 'pong', name: 'Pong Classic', category: 'Retro', icon: 'fa-solid fa-table-tennis-paddle-ball', color: 'pink', desc: 'Retro paddle battle against AI opponent.' },
+            { id: 'breakout', name: 'Block Breaker', category: 'Action', icon: 'fa-solid fa-cubes', color: 'cyan', desc: 'Break neon brick matrices with ball & paddle.' },
+            { id: 'carracer', name: 'Car Racer', category: 'Racing', icon: 'fa-solid fa-car-side', color: 'yellow', desc: 'Dodge oncoming cyber traffic on highway.' },
+            { id: 'spaceshooter', name: 'Space Shooter', category: 'Action', icon: 'fa-solid fa-rocket', color: 'pink', desc: 'Blast enemy starships in deep cosmos.' },
+            { id: 'game2048', name: '2048 Puzzle', category: 'Puzzle', icon: 'fa-solid fa-th', color: 'purple', desc: 'Slide and combine tiles to reach 2048.' },
+            { id: 'aimtrainer', name: 'Aim Trainer', category: 'Skill', icon: 'fa-solid fa-crosshairs', color: 'green', desc: 'Test your reflex speed and shooting accuracy.' },
+            { id: 'flappy', name: 'Flappy Bird', category: 'Arcade', icon: 'fa-solid fa-feather', color: 'yellow', desc: 'Navigate flying drone through plasma pipes.' },
+            { id: 'wordscramble', name: 'Word Scramble', category: 'Puzzle', icon: 'fa-solid fa-font', color: 'cyan', desc: 'Unscramble tech-themed gaming terminology.' },
+            { id: 'dice', name: 'Roll The Dice', category: 'Casual', icon: 'fa-solid fa-dice', color: 'pink', desc: 'Test your luck with glowing cybernetic dice.' }
+        ];
+
+        let activeGameInterval = null;
+        let activeAnimationFrame = null;
+        let activeKeyHandler = null;
+        let currentGameId = null;
+
+        // Local Storage State Helper
+        function getStorage(key, defaultVal) {
+            const val = localStorage.getItem('mikeyarcade_' + key);
+            return val !== null ? JSON.parse(val) : defaultVal;
+        }
+        function setStorage(key, val) {
+            localStorage.setItem('mikeyarcade_' + key, JSON.stringify(val));
+            updateGlobalStats();
+        }
+
+        // Initialize Global Stats
+        function updateGlobalStats() {
+            let totalXP = getStorage('total_xp', 0);
+            let gamesPlayed = getStorage('games_played', 0);
+            let highScore = getStorage('global_highscore', 0);
+
+            document.getElementById('globalScoreBadge').innerText = totalXP + ' XP';
+            document.getElementById('mobileGlobalScore').innerText = totalXP;
+            document.getElementById('statTotalScore').innerText = totalXP;
+            document.getElementById('statGamesPlayed').innerText = gamesPlayed;
+            document.getElementById('statHighScore').innerText = highScore;
+        }
+
+        function recordGamePlay(score) {
+            let totalXP = getStorage('total_xp', 0) + score;
+            let gamesPlayed = getStorage('games_played', 0) + 1;
+            let highScore = Math.max(getStorage('global_highscore', 0), score);
+            setStorage('total_xp', totalXP);
+            setStorage('games_played', gamesPlayed);
+            setStorage('global_highscore', highScore);
+        }
+
+        function renderGames(filter = '') {
+            const grid = document.getElementById('gamesGrid');
+            grid.innerHTML = '';
+            const filtered = gamesData.filter(g => g.name.toLowerCase().includes(filter.toLowerCase()) || g.category.toLowerCase().includes(filter.toLowerCase()));
+            
+            filtered.forEach(game => {
+                let highscore = getStorage('hs_' + game.id, 0);
+                const card = document.createElement('div');
+                card.className = `group bg-arcade-card hover:bg-arcade-cardHover border border-cyan-500/20 hover:border-cyan-400 rounded-2xl p-5 flex flex-col justify-between transition-all duration-300 transform hover:-translate-y-1 shadow-lg hover:shadow-neon-cyan cursor-pointer`;
+                card.onclick = () => launchGame(game.id);
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 rounded-xl bg-cyan-950/60 border border-cyan-500/40 flex items-center justify-center text-cyan-400 text-xl group-hover:scale-110 transition">
+                                <i class="${game.icon}"></i>
+                            </div>
+                            <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-cyan-500/10 text-cyan-300 border border-cyan-500/30">${game.category}</span>
+                        </div>
+                        <h3 class="text-lg font-black uppercase text-white group-hover:text-cyan-300 transition mb-1">${game.name}</h3>
+                        <p class="text-gray-400 text-xs mb-4 line-clamp-2">${game.desc}</p>
+                    </div>
+                    <div class="pt-4 border-t border-gray-800/80 flex items-center justify-between text-xs">
+                        <span class="text-gray-500 font-medium">Record: <strong class="text-cyan-400">${highscore}</strong></span>
+                        <span class="text-cyan-400 font-bold group-hover:translate-x-1 transition flex items-center gap-1">Play <i class="fa-solid fa-arrow-right"></i></span>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        document.getElementById('gameSearch').addEventListener('input', (e) => {
+            renderGames(e.target.value);
+        });
+
+        // Mobile Menu Toggle
+        document.getElementById('mobileMenuBtn').addEventListener('click', () => {
+            const menu = document.getElementById('mobileMenu');
+            menu.classList.toggle('hidden');
+        });
+
+        function openRandomGame() {
+            const rand = gamesData[Math.floor(Math.random() * gamesData.length)];
+            launchGame(rand.id);
+        }
+
+        function cleanupActiveGame() {
+            if (activeGameInterval) { clearInterval(activeGameInterval); activeGameInterval = null; }
+            if (activeAnimationFrame) { cancelAnimationFrame(activeAnimationFrame); activeAnimationFrame = null; }
+            if (activeKeyHandler) { window.removeEventListener('keydown', activeKeyHandler); activeKeyHandler = null; }
+        }
+
+        function closeGameModal() {
+            cleanupActiveGame();
+            const modal = document.getElementById('gameModal');
+            modal.classList.add('hidden');
+            renderGames();
+            updateGlobalStats();
+        }
+
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeGameModal();
+        });
+
+        function launchGame(gameId) {
+            cleanupActiveGame();
+            currentGameId = gameId;
+            const gameObj = gamesData.find(g => g.id === gameId);
+            const modal = document.getElementById('gameModal');
+            const titleEl = document.getElementById('modalGameTitle');
+            const iconEl = document.getElementById('modalGameIcon');
+            const hsEl = document.getElementById('modalHighScore');
+            const bodyEl = document.getElementById('modalGameBody');
+
+            titleEl.innerText = gameObj.name;
+            iconEl.className = gameObj.icon;
+            hsEl.innerText = getStorage('hs_' + gameId, 0);
+            bodyEl.innerHTML = '';
+
+            modal.classList.remove('hidden');
+
+            // Dispatch to specific game initializer
+            switch(gameId) {
+                case 'tictactoe': initTicTacToe(bodyEl); break;
+                case 'snake': initSnake(bodyEl); break;
+                case 'memory': initMemoryMatch(bodyEl); break;
+                case 'pong': initPong(bodyEl); break;
+                case 'breakout': initBreakout(bodyEl); break;
+                case 'carracer': initCarRacer(bodyEl); break;
+                case 'spaceshooter': initSpaceShooter(bodyEl); break;
+                case 'game2048': init2048(bodyEl); break;
+                case 'aimtrainer': initAimTrainer(bodyEl); break;
+                case 'flappy': initFlappy(bodyEl); break;
+                case 'wordscramble': initWordScramble(bodyEl); break;
+                case 'dice': initDice(bodyEl); break;
+            }
+        }
+
+        function initTicTacToe(container) {
+            container.innerHTML = `
+                <div class="flex flex-col items-center justify-center w-full max-w-md">
+                    <div class="flex justify-between w-full mb-4 px-2 text-sm font-bold">
+                        <span id="tttStatus" class="text-cyan-400">Player X Turn</span>
+                        <span class="text-gray-400">Wins - X: <span id="tttXWins">0</span> | O: <span id="tttOWins">0</span></span>
+                    </div>
+                    <div class="grid grid-cols-3 gap-3 w-72 h-72 sm:w-80 sm:h-80 bg-black/60 p-3 rounded-2xl border border-cyan-500/40 shadow-neon-cyan">
+                        ${[0,1,2,3,4,5,6,7,8].map(i => `<button data-index="${i}" class="ttt-cell bg-arcade-card hover:bg-arcade-cardHover border border-cyan-500/30 rounded-xl text-3xl sm:text-4xl font-black text-cyan-300 flex items-center justify-center transition focus:outline-none"></button>`).join('')}
+                    </div>
+                    <button onclick="resetTTT()" class="mt-6 px-6 py-2.5 rounded-xl bg-cyan-500 text-black font-bold uppercase tracking-wider shadow-neon-cyan hover:bg-cyan-400 transition">Reset Game</button>
+                </div>
+            `;
+            let board = Array(9).fill('');
+            let turn = 'X';
+            let active = true;
+            let xWins = getStorage('tictactoe_x', 0);
+            let oWins = getStorage('tictactoe_o', 0);
+            document.getElementById('tttXWins').innerText = xWins;
+            document.getElementById('tttOWins').innerText = oWins;
+
+            const cells = container.querySelectorAll('.ttt-cell');
+            const statusEl = document.getElementById('tttStatus');
+
+            const wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+
+            cells.forEach((cell, idx) => {
+                cell.onclick = () => {
+                    if (!active || board[idx] !== '') return;
+                    board[idx] = turn;
+                    cell.innerText = turn;
+                    cell.classList.add(turn === 'X' ? 'text-cyan-400' : 'text-pink-500');
+
+                    // Check win
+                    let roundWon = false;
+                    for (let w of wins) {
+                        if (board[w[0]] && board[w[0]] === board[w[1]] && board[w[0]] === board[w[2]]) {
+                            roundWon = true; break;
+                        }
+                    }
+
+                    if (roundWon) {
+                        statusEl.innerText = `Player ${turn} Wins!`;
+                        statusEl.className = 'text-pink-500 font-bold';
+                        active = false;
+                        if (turn === 'X') { xWins++; setStorage('tictactoe_x', xWins); document.getElementById('tttXWins').innerText = xWins; }
+                        else { oWins++; setStorage('tictactoe_o', oWins); document.getElementById('tttOWins').innerText = oWins; }
+                        recordGamePlay(50);
+                        return;
+                    }
+
+                    if (!board.includes('')) {
+                        statusEl.innerText = `It's a Draw!`;
+                        statusEl.className = 'text-yellow-400 font-bold';
+                        active = false;
+                        recordGamePlay(20);
+                        return;
+                    }
+
+                    turn = turn === 'X' ? 'O' : 'X';
+                    statusEl.innerText = `Player ${turn} Turn`;
+                };
+            });
+
+            window.resetTTT = () => {
+                board = Array(9).fill('');
+                turn = 'X';
+                active = true;
+                statusEl.innerText = 'Player X Turn';
+                statusEl.className = 'text-cyan-400';
+                cells.forEach(c => { c.innerText = ''; c.className = 'ttt-cell bg-arcade-card hover:bg-arcade-cardHover border border-cyan-500/30 rounded-xl text-3xl sm:text-4xl font-black flex items-center justify-center transition focus:outline-none'; });
+            };
+        }
+
+        function initSnake(container) {
+            container.innerHTML = `
+                <div class="flex flex-col items-center">
+                    <div class="flex justify-between w-full max-w-md mb-2 text-sm font-bold">
+                        <span class="text-green-400">Score: <span id="snakeScore">0</span></span>
+                        <span class="text-gray-400">High: <span id="snakeHigh">0</span></span>
+                    </div>
+                    <canvas id="snakeCanvas" width="360" height="360" class="border-2 border-green-500/50 shadow-neon-green"></canvas>
+                    <div class="grid grid-cols-3 gap-2 mt-4 w-48 sm:hidden">
+                        <div></div><button onclick="snakeDir('UP')" class="bg-arcade-card border border-green-500/50 p-3 rounded-lg text-green-400 text-lg"><i class="fa-solid fa-arrow-up"></i></button><div></div>
+                        <button onclick="snakeDir('LEFT')" class="bg-arcade-card border border-green-500/50 p-3 rounded-lg text-green-400 text-lg"><i class="fa-solid fa-arrow-left"></i></button>
+                        <button onclick="snakeDir('DOWN')" class="bg-arcade-card border border-green-500/50 p-3 rounded-lg text-green-400 text-lg"><i class="fa-solid fa-arrow-down"></i></button>
+                        <button onclick="snakeDir('RIGHT')" class="bg-arcade-card border border-green-500/50 p-3 rounded-lg text-green-400 text-lg"><i class="fa-solid fa-arrow-right"></i></button>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-3 hidden sm:block">Use Arrow Keys or WASD to steer.</p>
+                </div>
+            `;
+            const canvas = document.getElementById('snakeCanvas');
+            const ctx = canvas.getContext('2d');
+            const grid = 20;
+            let snake = [{x: 160, y: 160}, {x: 140, y: 160}, {x: 120, y: 160}];
+            let food = {x: 80, y: 80};
+            let dx = grid, dy = 0;
+            let score = 0;
+            let highscore = getStorage('hs_snake', 0);
+            document.getElementById('snakeHigh').innerText = highscore;
+
+            function spawnFood() {
+                food.x = Math.floor(Math.random() * (canvas.width / grid)) * grid;
+                food.y = Math.floor(Math.random() * (canvas.height / grid)) * grid;
+            }
+            spawnFood();
+
+            activeKeyHandler = (e) => {
+                if(['ArrowUp','KeyW'].includes(e.code) && dy === 0) { dx = 0; dy = -grid; e.preventDefault(); }
+                if(['ArrowDown','KeyS'].includes(e.code) && dy === 0) { dx = 0; dy = grid; e.preventDefault(); }
+                if(['ArrowLeft','KeyA'].includes(e.code) && dx === 0) { dx = -grid; dy = 0; e.preventDefault(); }
+                if(['ArrowRight','KeyD'].includes(e.code) && dx === 0) { dx = grid; dy = 0; e.preventDefault(); }
+            };
+            window.addEventListener('keydown', activeKeyHandler);
+
+            window.snakeDir = (dir) => {
+                if(dir === 'UP' && dy === 0) { dx = 0; dy = -grid; }
+                if(dir === 'DOWN' && dy === 0) { dx = 0; dy = grid; }
+                if(dir === 'LEFT' && dx === 0) { dx = -grid; dy = 0; }
+                if(dir === 'RIGHT' && dx === 0) { dx = grid; dy = 0; }
+            };
+
+            activeGameInterval = setInterval(() => {
+                const head = {x: snake[0].x + dx, y: snake[0].y + dy};
+
+                // Collision wall
+                if (head.x < 0 || head.x >= canvas.width || head.y < 0 || head.y >= canvas.height || snake.some(s => s.x === head.x && s.y === head.y)) {
+                    clearInterval(activeGameInterval);
+                    recordGamePlay(score);
+                    if (score > highscore) { setStorage('hs_snake', score); document.getElementById('snakeHigh').innerText = score; }
+                    ctx.fillStyle = 'rgba(0,0,0,0.8)';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    ctx.fillStyle = '#ff007f';
+                    ctx.font = 'bold 20px Orbitron';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('GAME OVER', canvas.width/2, canvas.height/2 - 10);
+                    ctx.fillStyle = '#fff';
+                    ctx.font = '12px Inter';
+                    ctx.fillText('Click Game to Restart', canvas.width/2, canvas.height/2 + 20);
+                    canvas.onclick = () => initSnake(container);
+                    return;
+                }
+
+                snake.unshift(head);
+                if (head.x === food.x && head.y === food.y) {
+                    score += 10;
+                    document.getElementById('snakeScore').innerText = score;
+                    spawnFood();
+                } else {
+                    snake.pop();
+                }
+
+                // Draw
+                ctx.fillStyle = '#050508';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                // Food
+                ctx.fillStyle = '#ff007f';
+                ctx.shadowColor = '#ff007f';
+                ctx.shadowBlur = 10;
+                ctx.fillRect(food.x, food.y, grid - 2, grid - 2);
+
+                // Snake
+                ctx.shadowColor = '#00ff66';
+                snake.forEach((s, i) => {
+                    ctx.fillStyle = i === 0 ? '#00ff66' : '#00aa44';
+                    ctx.fillRect(s.x, s.y, grid - 2, grid - 2);
+                });
+                ctx.shadowBlur = 0;
+
+            }, 100);
+        }
+
+        function initMemoryMatch(container) {
+            container.innerHTML = `
+                <div class="flex flex-col items-center">
+                    <div class="flex justify-between w-full max-w-md mb-4 text-sm font-bold">
+                        <span class="text-purple-400">Moves: <span id="memMoves">0</span></span>
+                        <span class="text-cyan-400">Pairs: <span id="memPairs">0</span>/8</span>
+                    </div>
+                    <div class="grid grid-cols-4 gap-3 w-72 sm:w-96">
+                        ${Array(16).fill(0).map((_, i) => `<div data-idx="${i}" class="mem-card h-16 sm:h-20 bg-arcade-card hover:bg-arcade-cardHover border border-purple-500/40 rounded-xl flex items-center justify-center text-2xl cursor-pointer shadow-neon-purple transition transform duration-200">?</div>`).join('')}
+                    </div>
+                    <button onclick="initMemoryMatch(document.getElementById('modalGameBody'))" class="mt-6 px-6 py-2.5 rounded-xl bg-purple-600 text-white font-bold uppercase tracking-wider shadow-neon-purple hover:bg-purple-500 transition">Restart Match</button>
+                </div>
+            `;
+            const emojis = ['🚀', '⚡', '💎', '🔥', '👾', '💻', '🎮', '🛸'];
+            let deck = [...emojis, ...emojis].sort(() => Math.random() - 0.5);
+            let flipped = [];
+            let matched = 0;
+            let moves = 0;
+            let locked = false;
+            let highscore = getStorage('hs_memory', 999);
+
+            const cards = container.querySelectorAll('.mem-card');
+            cards.forEach((card, idx) => {
+                card.onclick = () => {
+                    if (locked || card.classList.contains('matched') || flipped.includes(idx)) return;
+                    card.innerText = deck[idx];
+                    card.classList.add('bg-purple-950/60', 'border-cyan-400');
+                    flipped.push(idx);
+
+                    if (flipped.length === 2) {
+                        moves++;
+                        document.getElementById('memMoves').innerText = moves;
+                        locked = true;
+                        let [i1, i2] = flipped;
+                        if (deck[i1] === deck[i2]) {
+                            cards[i1].classList.add('matched');
+                            cards[i2].classList.add('matched');
+                            matched++;
+                            document.getElementById('memPairs').innerText = matched;
+                            flipped = [];
+                            locked = false;
+
+                            if (matched === 8) {
+                                recordGamePlay(100 - moves * 2);
+                                if (moves < highscore) { setStorage('hs_memory', moves); }
+                            }
+                        } else {
+                            setTimeout(() => {
+                                cards[i1].innerText = '?';
+                                cards[i1].className = 'mem-card h-16 sm:h-20 bg-arcade-card hover:bg-arcade-cardHover border border-purple-500/40 rounded-xl flex items-center justify-center text-2xl cursor-pointer shadow-neon-purple transition transform duration-200';
+                                cards[i2].innerText = '?';
+                                cards[i2].className = 'mem-card h-16 sm:h-20 bg-arcade-card hover:bg-arcade-cardHover border border-purple-500/40 rounded-xl flex items-center justify-center text-2xl cursor-pointer shadow-neon-purple transition transform duration-200';
+                                flipped = [];
+                                locked = false;
+                            }, 700);
+                        }
+                    }
+                };
+            });
+        }
+
+        function initPong(container) {
+            container.innerHTML = `
+                <div class="flex flex-col items-center">
+                    <div class="flex justify-between w-full max-w-lg mb-2 text-sm font-bold">
+                        <span class="text-cyan-400">Player: <span id="pongPlayerScore">0</span></span>
+                        <span class="text-pink-500">AI: <span id="pongAIScore">0</span></span>
+                    </div>
+                    <canvas id="pongCanvas" width="480" height="300" class="border-2 border-cyan-500/50 shadow-neon-cyan"></canvas>
+                    <div class="flex gap-4 mt-4 sm:hidden">
+                        <button ontouchstart="pongMove(-20)" onmousedown="pongMove(-20)" class="px-6 py-3 bg-arcade-card border border-cyan-500 text-cyan-400 font-bold rounded-lg">UP</button>
+                        <button ontouchstart="pongMove(20)" onmousedown="pongMove(20)" class="px-6 py-3 bg-arcade-card border border-cyan-500 text-cyan-400 font-bold rounded-lg">DOWN</button>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-2 hidden sm:block">Use W/S or Arrow Up/Down keys to move paddle.</p>
+                </div>
+            `;
+            const canvas = document.getElementById('pongCanvas');
+            const ctx = canvas.getContext('2d');
+
+            let pScore = 0, aScore = 0;
+            let player = {x: 10, y: 110, w: 10, h: 70, dy: 0};
+            let ai = {x: 460, y: 110, w: 10, h: 70};
+            let ball = {x: 240, y: 150, r: 8, dx: 4, dy: 3};
+
+            activeKeyHandler = (e) => {
+                if(['ArrowUp','KeyW'].includes(e.code)) player.y = Math.max(0, player.y - 25);
+                if(['ArrowDown','KeyS'].includes(e.code)) player.y = Math.min(canvas.height - player.h, player.y + 25);
+            };
+            window.addEventListener('keydown', activeKeyHandler);
+
+            window.pongMove = (amount) => {
+                player.y = Math.max(0, Math.min(canvas.height - player.h, player.y + amount));
+            };
+
+            activeGameInterval = setInterval(() => {
+                ball.x += ball.dx;
+                ball.y += ball.dy;
+
+                // Wall collision top/bottom
+                if (ball.y - ball.r < 0 || ball.y + ball.r > canvas.height) ball.dy *= -1;
+
+                // AI movement
+                let aiCenter = ai.y + ai.h / 2;
+                if (aiCenter < ball.y - 10) ai.y += 3;
+                else if (aiCenter > ball.y + 10) ai.y -= 3;
+                ai.y = Math.max(0, Math.min(canvas.height - ai.h, ai.y));
+
+                // Paddle collisions
+                if (ball.x - ball.r <= player.x + player.w && ball.y >= player.y && ball.y <= player.y + player.h) {
+                    ball.dx *= -1.05;
+                    ball.x = player.x + player.w + ball.r;
+                }
+                if (ball.x + ball.r >= ai.x && ball.y >= ai.y && ball.y <= ai.y + ai.h) {
+                    ball.dx *= -1.05;
+                    ball.x = ai.x - ball.r;
+                }
+
+                // Scoring
+                if (ball.x < 0) {
+                    aScore++;
+                    document.getElementById('pongAIScore').innerText = aScore;
+                    resetBall();
+                } else if (ball.x > canvas.width) {
+                    pScore++;
+                    document.getElementById('pongPlayerScore').innerText = pScore;
+                    recordGamePlay(20);
+                    resetBall();
+                }
+
+                function resetBall() {
+                    ball.x = canvas.width / 2;
+                    ball.y = canvas.height / 2;
+                    ball.dx = 4 * (Math.random() > 0.5 ? 1 : -1);
+                    ball.dy = 3 * (Math.random() > 0.5 ? 1 : -1);
+                }
+
+                // Draw
+                ctx.fillStyle = '#050508';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                // Net
+                ctx.strokeStyle = '#1a1f30';
+                ctx.setLineDash([5, 5]);
+                ctx.beginPath();
+                ctx.moveTo(canvas.width / 2, 0);
+                ctx.lineTo(canvas.width / 2, canvas.height);
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                // Paddles & Ball
+                ctx.fillStyle = '#00f0ff';
+                ctx.shadowColor = '#00f0ff';
+                ctx.shadowBlur = 10;
+                ctx.fillRect(player.x, player.y, player.w, player.h);
+
+                ctx.fillStyle = '#ff007f';
+                ctx.shadowColor = '#ff007f';
+                ctx.fillRect(ai.x, ai.y, ai.w, ai.h);
+
+                ctx.fillStyle = '#ffffff';
+                ctx.shadowColor = '#ffffff';
+                ctx.beginPath();
+                ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.shadowBlur = 0;
+
+            }, 1000 / 60);
+        }
+
+        function initBreakout(container) {
+            container.innerHTML = `
+                <div class="flex flex-col items-center">
+                    <div class="flex justify-between w-full max-w-md mb-2 text-sm font-bold">
+                        <span class="text-cyan-400">Score: <span id="brkScore">0</span></span>
+                        <span class="text-pink-500">Lives: <span id="brkLives">3</span></span>
+                    </div>
+                    <canvas id="breakoutCanvas" width="400" height="320" class="border-2 border-cyan-500/50 shadow-neon-cyan"></canvas>
+                    <div class="flex gap-6 mt-4 sm:hidden">
+                        <button ontouchstart="breakoutMove(-25)" onmousedown="breakoutMove(-25)" class="px-6 py-2 bg-arcade-card border border-cyan-500 text-cyan-400 font-bold rounded-lg"><i class="fa-solid fa-arrow-left"></i></button>
+                        <button ontouchstart="breakoutMove(25)" onmousedown="breakoutMove(25)" class="px-6 py-2 bg-arcade-card border border-cyan-500 text-cyan-400 font-bold rounded-lg"><i class="fa-solid fa-arrow-right"></i></button>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-2 hidden sm:block">Use Left/Right Arrow Keys or Mouse to move paddle.</p>
+                </div>
+            `;
+            const canvas = document.getElementById('breakoutCanvas');
+            const ctx = canvas.getContext('2d');
+
+            let score = 0, lives = 3;
+            let paddle = {x: 160, y: 295, w: 80, h: 10};
+            let ball = {x: 200, y: 200, r: 6, dx: 3, dy: -3};
+
+            let bricks = [];
+            for(let c=0; c<5; c++) {
+                for(let r=0; r<4; r++) {
+                    bricks.push({x: c * 75 + 20, y: r * 20 + 30, w: 65, h: 14, status: 1});
+                }
+            }
+
+            activeKeyHandler = (e) => {
+                if(e.code === 'ArrowLeft') paddle.x = Math.max(0, paddle.x - 25);
+                if(e.code === 'ArrowRight') paddle.x = Math.min(canvas.width - paddle.w, paddle.x + 25);
+            };
+            window.addEventListener('keydown', activeKeyHandler);
+
+            window.breakoutMove = (amount) => {
+                paddle.x = Math.max(0, Math.min(canvas.width - paddle.w, paddle.x + amount));
+            };
+
+            canvas.onmousemove = (e) => {
+                let rect = canvas.getBoundingClientRect();
+                let mouseX = e.clientX - rect.left;
+                paddle.x = Math.max(0, Math.min(canvas.width - paddle.w, mouseX - paddle.w/2));
+            };
+
+            activeGameInterval = setInterval(() => {
+                ball.x += ball.dx;
+                ball.y += ball.dy;
+
+                // Wall bounce
+                if (ball.x - ball.r < 0 || ball.x + ball.r > canvas.width) ball.dx *= -1;
+                if (ball.y - ball.r < 0) ball.dy *= -1;
+
+                // Paddle bounce
+                if (ball.y + ball.r >= paddle.y && ball.x >= paddle.x && ball.x <= paddle.x + paddle.w) {
+                    ball.dy *= -1;
+                    ball.y = paddle.y - ball.r;
+                }
+
+                // Bottom loss
+                if (ball.y + ball.r > canvas.height) {
+                    lives--;
+                    document.getElementById('brkLives').innerText = lives;
+                    if (lives === 0) {
+                        clearInterval(activeGameInterval);
+                        recordGamePlay(score);
+                        ctx.fillStyle = 'rgba(0,0,0,0.85)';
+                        ctx.fillRect(0,0,canvas.width,canvas.height);
+                        ctx.fillStyle = '#ff007f';
+                        ctx.font = 'bold 20px Orbitron';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('GAME OVER', canvas.width/2, canvas.height/2);
+                        return;
+                    }
+                    ball.x = 200; ball.y = 200; ball.dx = 3; ball.dy = -3;
+                }
+
+                // Brick collision
+                bricks.forEach(b => {
+                    if (b.status === 1 && ball.x > b.x && ball.x < b.x + b.w && ball.y > b.y && ball.y < b.y + b.h) {
+                        b.status = 0;
+                        ball.dy *= -1;
+                        score += 15;
+                        document.getElementById('brkScore').innerText = score;
+                    }
+                });
+
+                // Draw
+                ctx.fillStyle = '#050508';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                bricks.forEach(b => {
+                    if (b.status === 1) {
+                        ctx.fillStyle = '#00f0ff';
+                        ctx.shadowColor = '#00f0ff';
+                        ctx.shadowBlur = 8;
+                        ctx.fillRect(b.x, b.y, b.w, b.h);
+                    }
+                });
+
+                ctx.fillStyle = '#00ff66';
+                ctx.shadowColor = '#00ff66';
+                ctx.fillRect(paddle.x, paddle.y, paddle.w, paddle.h);
+
+                ctx.fillStyle = '#ffffff';
+                ctx.shadowColor = '#ffffff';
+                ctx.beginPath();
+                ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.shadowBlur = 0;
+
+            }, 1000/60);
+        }
+
+        function initCarRacer(container) {
+            container.innerHTML = `
+                <div class="flex flex-col items-center">
+                    <div class="flex justify-between w-full max-w-sm mb-2 text-sm font-bold">
+                        <span class="text-yellow-400">Distance: <span id="racerDist">0</span>m</span>
+                        <span class="text-cyan-400">High: <span id="racerHigh">0</span></span>
+                    </div>
+                    <canvas id="racerCanvas" width="320" height="400" class="border-2 border-yellow-500/50 shadow-neon-pink"></canvas>
+                    <div class="flex gap-8 mt-4">
+                        <button ontouchstart="racerSteer(-30)" onmousedown="racerSteer(-30)" class="px-6 py-3 bg-arcade-card border border-yellow-500 text-yellow-400 font-bold rounded-xl"><i class="fa-solid fa-arrow-left"></i></button>
+                        <button ontouchstart="racerSteer(30)" onmousedown="racerSteer(30)" class="px-6 py-3 bg-arcade-card border border-yellow-500 text-yellow-400 font-bold rounded-xl"><i class="fa-solid fa-arrow-right"></i></button>
+                    </div>
+                </div>
+            `;
+            const canvas = document.getElementById('racerCanvas');
+            const ctx = canvas.getContext('2d');
+
+            let car = {x: 140, y: 320, w: 35, h: 60};
+            let enemies = [{x: 140, y: -100, w: 35, h: 60, speed: 4}];
+            let distance = 0;
+            let highscore = getStorage('hs_carracer', 0);
+            document.getElementById('racerHigh').innerText = highscore;
+
+            activeKeyHandler = (e) => {
+                if(e.code === 'ArrowLeft') car.x = Math.max(50, car.x - 30);
+                if(e.code === 'ArrowRight') car.x = Math.min(235, car.x + 30);
+            };
+            window.addEventListener('keydown', activeKeyHandler);
+
+            window.racerSteer = (val) => {
+                car.x = Math.max(50, Math.min(235, car.x + val));
+            };
+
+            activeGameInterval = setInterval(() => {
+                distance += 5;
+                document.getElementById('racerDist').innerText = distance;
+
+                // Move enemies
+                enemies.forEach(en => {
+                    en.y += en.speed;
+                    if(en.y > canvas.height) {
+                        en.y = -100;
+                        en.x = [55, 140, 225][Math.floor(Math.random()*3)];
+                    }
+                    // Collision
+                    if (car.x < en.x + en.w && car.x + car.w > en.x && car.y < en.y + en.h && car.y + car.h > en.y) {
+                        clearInterval(activeGameInterval);
+                        recordGamePlay(distance);
+                        if (distance > highscore) { setStorage('hs_carracer', distance); document.getElementById('racerHigh').innerText = distance; }
+                        ctx.fillStyle = 'rgba(0,0,0,0.85)';
+                        ctx.fillRect(0,0,canvas.width,canvas.height);
+                        ctx.fillStyle = '#ff007f';
+                        ctx.font = 'bold 20px Orbitron';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('CRASHED!', canvas.width/2, canvas.height/2);
+                        return;
+                    }
+                });
+
+                // Draw road
+                ctx.fillStyle = '#111';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = '#222';
+                ctx.fillRect(40, 0, 240, canvas.height);
+
+                // Road borders
+                ctx.fillStyle = '#ff007f';
+                ctx.fillRect(35, 0, 5, canvas.height);
+                ctx.fillRect(280, 0, 5, canvas.height);
+
+                // Draw player
+                ctx.fillStyle = '#00f0ff';
+                ctx.shadowColor = '#00f0ff';
+                ctx.shadowBlur = 10;
+                ctx.fillRect(car.x, car.y, car.w, car.h);
+
+                // Draw enemies
+                ctx.fillStyle = '#ff007f';
+                ctx.shadowColor = '#ff007f';
+                enemies.forEach(en => {
+                    ctx.fillRect(en.x, en.y, en.w, en.h);
+                });
+                ctx.shadowBlur = 0;
+
+            }, 1000/60);
+        }
+
+        function initSpaceShooter(container) {
+            container.innerHTML = `
+                <div class="flex flex-col items-center">
+                    <div class="flex justify-between w-full max-w-sm mb-2 text-sm font-bold">
+                        <span class="text-pink-500">Score: <span id="spaceScore">0</span></span>
+                        <span class="text-cyan-400">Lives: <span id="spaceLives">3</span></span>
+                    </div>
+                    <canvas id="spaceCanvas" width="360" height="400" class="border-2 border-pink-500/50 shadow-neon-pink"></canvas>
+                    <div class="flex gap-4 mt-4">
+                        <button ontouchstart="spaceMove(-30)" onmousedown="spaceMove(-30)" class="px-4 py-2 bg-arcade-card border border-pink-500 text-pink-400 font-bold rounded-lg"><i class="fa-solid fa-arrow-left"></i></button>
+                        <button ontouchstart="spaceShoot()" onmousedown="spaceShoot()" class="px-6 py-2 bg-pink-600 text-white font-bold rounded-lg shadow-neon-pink">FIRE</button>
+                        <button ontouchstart="spaceMove(30)" onmousedown="spaceMove(30)" class="px-4 py-2 bg-arcade-card border border-pink-500 text-pink-400 font-bold rounded-lg"><i class="fa-solid fa-arrow-right"></i></button>
+                    </div>
+                </div>
+            `;
+            const canvas = document.getElementById('spaceCanvas');
+            const ctx = canvas.getContext('2d');
+
+            let player = {x: 160, y: 350, w: 30, h: 25};
+            let bullets = [];
+            let aliens = [{x: 100, y: 50, w: 25, h: 20, dx: 2}];
+            let score = 0, lives = 3;
+
+            activeKeyHandler = (e) => {
+                if(e.code === 'ArrowLeft') player.x = Math.max(10, player.x - 20);
+                if(e.code === 'ArrowRight') player.x = Math.min(canvas.width - 40, player.x + 20);
+                if(e.code === 'Space') shoot();
+            };
+            window.addEventListener('keydown', activeKeyHandler);
+
+            window.spaceMove = (val) => { player.x = Math.max(10, Math.min(canvas.width - 40, player.x + val)); };
+            window.spaceShoot = () => { shoot(); };
+
+            function shoot() {
+                bullets.push({x: player.x + 12, y: player.y, w: 4, h: 10});
+            }
+
+            activeGameInterval = setInterval(() => {
+                // Bullets
+                bullets.forEach((b, idx) => {
+                    b.y -= 6;
+                    if(b.y < 0) bullets.splice(idx, 1);
+                });
+
+                // Aliens
+                aliens.forEach(a => {
+                    a.x += a.dx;
+                    if(a.x < 10 || a.x > canvas.width - 35) a.dx *= -1;
+                });
+
+                // Collisions
+                bullets.forEach((b, bi) => {
+                    aliens.forEach((a, ai) => {
+                        if(b.x > a.x && b.x < a.x + a.w && b.y > a.y && b.y < a.y + a.h) {
+                            aliens.splice(ai, 1);
+                            bullets.splice(bi, 1);
+                            score += 25;
+                            document.getElementById('spaceScore').innerText = score;
+                            aliens.push({x: Math.random()*280 + 20, y: 30, w: 25, h: 20, dx: (Math.random()>0.5?2:-2)});
+                        }
+                    });
+                });
+
+                // Draw
+                ctx.fillStyle = '#050508';
+                ctx.fillRect(0,0,canvas.width,canvas.height);
+
+                ctx.fillStyle = '#00f0ff';
+                ctx.shadowColor = '#00f0ff';
+                ctx.shadowBlur = 10;
+                ctx.fillRect(player.x, player.y, player.w, player.h);
+
+                ctx.fillStyle = '#ff007f';
+                ctx.shadowColor = '#ff007f';
+                aliens.forEach(a => ctx.fillRect(a.x, a.y, a.w, a.h));
+
+                ctx.fillStyle = '#ffff00';
+                bullets.forEach(b => ctx.fillRect(b.x, b.y, b.w, b.h));
+                ctx.shadowBlur = 0;
+
+            }, 1000/60);
+        }
+
+        function init2048(container) {
+            container.innerHTML = `
+                <div class="flex flex-col items-center">
+                    <div class="flex justify-between w-full max-w-xs mb-3 text-sm font-bold">
+                        <span class="text-purple-400">Score: <span id="score2048">0</span></span>
+                        <button onclick="init2048(document.getElementById('modalGameBody'))" class="text-xs px-3 py-1 bg-purple-600 text-white rounded-lg">New Game</button>
+                    </div>
+                    <div id="grid2048" class="grid grid-cols-4 gap-2 w-72 h-72 sm:w-80 sm:h-80 bg-black/80 p-3 rounded-2xl border border-purple-500/50 shadow-neon-purple">
+                    </div>
+                </div>
+            `;
+            let board = Array(16).fill(0);
+            let score = 0;
+
+            function addRandom() {
+                let empty = board.map((v, i) => v === 0 ? i : null).filter(v => v !== null);
+                if(empty.length) {
+                    let idx = empty[Math.floor(Math.random() * empty.length)];
+                    board[idx] = Math.random() < 0.9 ? 2 : 4;
+                }
+            }
+
+            function draw() {
+                const gridEl = document.getElementById('grid2048');
+                gridEl.innerHTML = '';
+                board.forEach(val => {
+                    const tile = document.createElement('div');
+                    let bg = val === 0 ? 'bg-arcade-card' : val <= 4 ? 'bg-purple-950 text-cyan-300' : 'bg-pink-950 text-pink-300';
+                    tile.className = `rounded-xl flex items-center justify-center text-xl sm:text-2xl font-black ${bg} border border-purple-500/30`;
+                    tile.innerText = val !== 0 ? val : '';
+                    gridEl.appendChild(tile);
+                });
+                document.getElementById('score2048').innerText = score;
+            }
+
+            addRandom(); addRandom(); draw();
+
+            activeKeyHandler = (e) => {
+                if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.code)) {
+                    addRandom();
+                    draw();
+                    score += 10;
+                }
+            };
+            window.addEventListener('keydown', activeKeyHandler);
+        }
+
+        function initAimTrainer(container) {
+            container.innerHTML = `
+                <div class="flex flex-col items-center w-full max-w-md">
+                    <div class="flex justify-between w-full mb-3 text-sm font-bold">
+                        <span class="text-green-400">Score: <span id="aimScore">0</span></span>
+                        <span class="text-pink-500">Time: <span id="aimTimer">20</span>s</span>
+                    </div>
+                    <div id="aimArea" class="relative w-full h-72 bg-black/60 border-2 border-green-500/50 rounded-2xl overflow-hidden cursor-crosshair shadow-neon-green">
+                    </div>
+                    <button onclick="startAimGame()" class="mt-4 px-6 py-2.5 bg-green-500 text-black font-bold uppercase rounded-xl shadow-neon-green">Start Training</button>
+                </div>
+            `;
+            window.startAimGame = () => {
+                let score = 0;
+                let timeLeft = 20;
+                const area = document.getElementById('aimArea');
+                area.innerHTML = '';
+                document.getElementById('aimScore').innerText = score;
+
+                let timer = setInterval(() => {
+                    timeLeft--;
+                    document.getElementById('aimTimer').innerText = timeLeft;
+                    if(timeLeft <= 0) {
+                        clearInterval(timer);
+                        clearInterval(targetGen);
+                        area.innerHTML = `<div class="absolute inset-0 flex items-center justify-center text-2xl font-black text-cyan-400">Final Score: ${score}</div>`;
+                        recordGamePlay(score * 2);
+                    }
+                }, 1000);
+
+                function spawnTarget() {
+                    area.innerHTML = '';
+                    const target = document.createElement('div');
+                    let x = Math.random() * (area.clientWidth - 40);
+                    let y = Math.random() * (area.clientHeight - 40);
+                    target.className = `absolute w-10 h-10 rounded-full bg-pink-500 border-2 border-white shadow-neon-pink cursor-pointer transform hover:scale-110 transition`;
+                    target.style.left = x + 'px';
+                    target.style.top = y + 'px';
+                    target.onclick = () => {
+                        score++;
+                        document.getElementById('aimScore').innerText = score;
+                        spawnTarget();
+                    };
+                    area.appendChild(target);
+                }
+                spawnTarget();
+            };
+        }
+
+        function initFlappy(container) {
+            container.innerHTML = `
+                <div class="flex flex-col items-center">
+                    <div class="mb-2 text-sm font-bold text-yellow-400">Score: <span id="flappyScore">0</span></div>
+                    <canvas id="flappyCanvas" width="320" height="400" class="border-2 border-yellow-500/50 shadow-neon-cyan cursor-pointer"></canvas>
+                    <p class="text-xs text-gray-400 mt-2">Tap/Click or press Spacebar to flap.</p>
+                </div>
+            `;
+            const canvas = document.getElementById('flappyCanvas');
+            const ctx = canvas.getContext('2d');
+
+            let bird = {x: 50, y: 150, r: 12, gravity: 0.6, lift: -9, velocity: 0};
+            let pipes = [{x: 320, top: 120, bottom: 120, w: 45}];
+            let score = 0;
+            let active = true;
+
+            function flap() {
+                if (!active) { initFlappy(container); return; }
+                bird.velocity = bird.lift;
+            }
+
+            canvas.onclick = flap;
+            activeKeyHandler = (e) => { if(e.code === 'Space') flap(); };
+            window.addEventListener('keydown', activeKeyHandler);
+
+            activeGameInterval = setInterval(() => {
+                if(!active) return;
+                bird.velocity += bird.gravity;
+                bird.y += bird.velocity;
+
+                if (bird.y > canvas.height || bird.y < 0) active = false;
+
+                pipes.forEach(p => {
+                    p.x -= 2;
+                    if (p.x + p.w < 0) {
+                        p.x = canvas.width;
+                        p.top = Math.random() * 150 + 50;
+                        p.bottom = Math.random() * 150 + 50;
+                        score++;
+                        document.getElementById('flappyScore').innerText = score;
+                    }
+                    if (bird.x + bird.r > p.x && bird.x - bird.r < p.x + p.w && (bird.y - bird.r < p.top || bird.y + bird.r > canvas.height - p.bottom)) {
+                        active = false;
+                    }
+                });
+
+                ctx.fillStyle = '#050508';
+                ctx.fillRect(0,0,canvas.width,canvas.height);
+
+                ctx.fillStyle = '#00ff66';
+                pipes.forEach(p => {
+                    ctx.fillRect(p.x, 0, p.w, p.top);
+                    ctx.fillRect(p.x, canvas.height - p.bottom, p.w, p.bottom);
+                });
+
+                ctx.fillStyle = '#ffff00';
+                ctx.beginPath();
+                ctx.arc(bird.x, bird.y, bird.r, 0, Math.PI*2);
+                ctx.fill();
+
+                if(!active) {
+                    recordGamePlay(score * 10);
+                    ctx.fillStyle = '#ff007f';
+                    ctx.font = 'bold 20px Orbitron';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('GAME OVER - CLICK TO RETRY', canvas.width/2, canvas.height/2);
+                }
+            }, 1000/60);
+        }
+
+        function initWordScramble(container) {
+            container.innerHTML = `
+                <div class="flex flex-col items-center w-full max-w-sm">
+                    <div class="text-lg font-black text-cyan-400 mb-4 tracking-widest uppercase" id="scrambledWord">LOAD...</div>
+                    <input type="text" id="wordInput" placeholder="Type answer..." class="w-full px-4 py-3 rounded-xl bg-arcade-card border border-cyan-500 text-white text-center text-lg mb-4 focus:outline-none">
+                    <button onclick="checkWord()" class="w-full py-3 bg-cyan-500 text-black font-bold uppercase rounded-xl shadow-neon-cyan">Submit Word</button>
+                    <div class="mt-4 text-sm text-gray-400">Score: <span id="wordScore" class="text-white font-bold">0</span></div>
+                </div>
+            `;
+            const words = ['GAMING', 'CYBER', 'ARCADE', 'PYTHON', 'JAVASCRIPT', 'CONSOLE', 'PIXEL', 'MATRIX'];
+            let current = '';
+            let scrambled = '';
+            let score = 0;
+
+            function nextWord() {
+                current = words[Math.floor(Math.random() * words.length)];
+                scrambled = current.split('').sort(() => Math.random() - 0.5).join('');
+                document.getElementById('scrambledWord').innerText = scrambled;
+                document.getElementById('wordInput').value = '';
+            }
+            nextWord();
+
+            window.checkWord = () => {
+                let val = document.getElementById('wordInput').value.toUpperCase().trim();
+                if(val === current) {
+                    score += 20;
+                    document.getElementById('wordScore').innerText = score;
+                    recordGamePlay(20);
+                    nextWord();
+                } else {
+                    document.getElementById('wordInput').classList.add('border-pink-500');
+                    setTimeout(() => document.getElementById('wordInput').classList.remove('border-pink-500'), 500);
+                }
+            };
+        }
+
+        function initDice(container) {
+            container.innerHTML = `
+                <div class="flex flex-col items-center">
+                    <div id="diceBox" class="w-24 h-24 rounded-2xl bg-arcade-card border-2 border-pink-500 flex items-center justify-center text-5xl text-pink-500 shadow-neon-pink mb-6 transform transition duration-300">
+                        <i class="fa-solid fa-dice-six"></i>
+                    </div>
+                    <button onclick="rollDice()" class="px-8 py-3 rounded-xl bg-gradient-to-r from-pink-500 to-purple-600 text-white font-black uppercase tracking-wider shadow-neon-pink">Roll Dice</button>
+                    <div class="mt-6 text-sm text-gray-400">History: <span id="diceHistory" class="text-cyan-400 font-bold">-</span></div>
+                </div>
+            `;
+            const icons = ['fa-dice-one', 'fa-dice-two', 'fa-dice-three', 'fa-dice-four', 'fa-dice-five', 'fa-dice-six'];
+            let history = [];
+
+            window.rollDice = () => {
+                let res = Math.floor(Math.random() * 6) + 1;
+                const box = document.getElementById('diceBox');
+                box.style.transform = 'rotate(360deg)';
+                setTimeout(() => box.style.transform = 'none', 300);
+                box.innerHTML = `<i class="fa-solid ${icons[res-1]}"></i>`;
+                history.unshift(res);
+                if(history.length > 5) history.pop();
+                document.getElementById('diceHistory').innerText = history.join(', ');
+                recordGamePlay(res * 5);
+            };
+        }
+
+        // Initialize App on Load
+        window.onload = () => {
+            renderGames();
+            updateGlobalStats();
+        };
+    </script>
+</body>
+</html>
