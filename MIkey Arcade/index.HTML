@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>MikeyArcade - 500 Playable Games Platform</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Top Navigation Bar -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <div class="brand" id="brand-home">
+        <span class="logo-icon">🕹️</span>
+        <span class="logo-text">Mikey<span class="highlight">Arcade</span></span>
+        <span class="badge-500">500 GAMES</span>
+      </div>
+      
+      <div class="search-bar-nav">
+        <input type="text" id="nav-search-input" placeholder="Search 500 games by name, category, or tag...">
+        <button id="nav-search-btn">🔍</button>
+      </div>
+
+      <div class="nav-right">
+        <button class="icon-btn" id="sound-toggle-btn" title="Toggle Audio">🔊</button>
+        <button class="btn btn-secondary" id="pwa-install-btn" style="display:none;">📲 Install App</button>
+        <div class="user-widget" id="user-nav-widget"></div>
+        <button class="hamburger" id="hamburger-btn">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+    
+    <!-- Mobile Navigation Drawer -->
+    <div class="mobile-drawer" id="mobile-drawer">
+      <div class="mobile-search">
+        <input type="text" id="mobile-search-input" placeholder="Search 500 games...">
+      </div>
+      <div class="mobile-menu-links" id="mobile-cat-links"></div>
+    </div>
+  </nav>
+
+  <!-- Main Arcade Portal View -->
+  <main class="main-content" id="portal-view">
+    
+    <!-- Hero Banner -->
+    <section class="hero-section">
+      <div class="hero-content">
+        <h1 class="hero-title">NEXT-GEN <span class="neon-text">500-GAME</span> ARCADE</h1>
+        <p class="hero-subtitle">100% Playable HTML5 & Canvas Arcade Portal — Including 2-Player Local Games, Mobile Touch Support & Zero Downloads.</p>
+        <div class="hero-actions">
+          <button class="btn btn-primary" id="hero-random-btn">⚡ Surprise Game</button>
+          <button class="btn btn-secondary" id="hero-2p-btn">👥 2-Player Games</button>
+          <button class="btn btn-secondary" id="hero-profile-btn">🏆 Player Dashboard</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Filter & Categories Bar -->
+    <section class="controls-section">
+      <div class="categories-scroll" id="categories-bar"></div>
+    </section>
+
+    <!-- Recently Played Row -->
+    <section class="section-container" id="recent-section" style="display: none;">
+      <h2 class="section-title">⏱️ Recently Played</h2>
+      <div class="games-grid" id="recent-games-grid"></div>
+    </section>
+
+    <!-- Main Games Catalog Grid -->
+    <section class="section-container">
+      <div class="section-header">
+        <h2 class="section-title" id="catalog-title">🎮 All Games</h2>
+        <span class="game-count-badge" id="game-count">500 Games</span>
+      </div>
+      <div class="games-grid" id="main-games-grid"></div>
+      
+      <!-- Pagination / Dynamic Scroll Controls -->
+      <div class="pagination-container" id="pagination-controls">
+        <button class="btn btn-secondary" id="prev-page-btn">◀ Prev</button>
+        <span id="page-indicator">Page 1 of 25</span>
+        <button class="btn btn-secondary" id="next-page-btn">Next ▶</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- Game Play View Modal -->
+  <section class="game-play-view" id="game-play-view" style="display: none;">
+    <div class="game-view-header">
+      <button class="btn btn-secondary" id="back-to-portal-btn">⬅️ Back to Games</button>
+      <div class="game-header-title-box">
+        <h2 class="playing-game-title" id="game-play-title">Game Title</h2>
+        <span class="game-header-cat" id="game-play-cat">Arcade</span>
+      </div>
+      <div class="game-header-actions">
+        <button class="icon-btn" id="game-fav-toggle" title="Favorite">🤍</button>
+        <button class="icon-btn" id="game-fullscreen-btn" title="Fullscreen">⛶</button>
+      </div>
+    </div>
+
+    <div class="game-container-wrapper">
+      <div class="game-canvas-container" id="canvas-wrapper">
+        <canvas id="arcade-canvas" width="800" height="600"></canvas>
+
+        <!-- Dynamic Game Overlays -->
+        <div class="game-overlay" id="start-overlay">
+          <h1 id="overlay-title">READY TO PLAY?</h1>
+          <p id="overlay-instructions">Loading game configuration...</p>
+          <p class="ctrl-mode-indicator" id="overlay-controls-hint">P1: WASD / Touch Pad | P2: Arrow Keys / Touch Buttons</p>
+          <button class="btn btn-primary btn-large" id="start-game-btn">▶ START GAME</button>
+        </div>
+
+        <div class="game-overlay" id="pause-overlay" style="display: none;">
+          <h1>PAUSED</h1>
+          <button class="btn btn-primary" id="resume-game-btn">▶ Resume</button>
+          <button class="btn btn-secondary" id="restart-pause-btn">🔄 Restart</button>
+        </div>
+
+        <div class="game-overlay" id="gameover-overlay" style="display: none;">
+          <h1 class="text-danger" id="gameover-title">GAME OVER</h1>
+          <div class="final-score-box">
+            <span>Score: <strong id="final-score">0</strong></span> | 
+            <span>High Score: <strong id="final-highscore">0</strong></span>
+          </div>
+          <button class="btn btn-primary btn-large" id="restart-game-btn">🔄 Play Again</button>
+        </div>
+      </div>
+
+      <!-- Controls & Stats Side Panel -->
+      <div class="game-sidebar">
+        <div class="stat-card">
+          <div class="stat-label">SCORE / STATUS</div>
+          <div class="stat-value" id="hud-score">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">HIGH SCORE</div>
+          <div class="stat-value" id="hud-highscore">0</div>
+        </div>
+
+        <div class="game-controls-card">
+          <h3>🎮 Instructions & Controls</h3>
+          <p id="game-controls-text">Loading...</p>
+        </div>
+
+        <div class="game-action-buttons">
+          <button class="btn btn-secondary" id="hud-pause-btn">⏸️ Pause</button>
+          <button class="btn btn-secondary" id="hud-restart-btn">🔄 Restart</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dual Virtual Touch Pad for Mobile Devices (Supports 2-Player local touch) -->
+    <div class="virtual-touch-pad" id="virtual-touch-pad">
+      <!-- Player 1 Touch Controls -->
+      <div class="p1-touch-group">
+        <span class="touch-label">P1 CONTROLS</span>
+        <div class="dpad">
+          <button class="vbtn dpad-up" id="vbtn-p1-up">▲</button>
+          <button class="vbtn dpad-left" id="vbtn-p1-left">◀</button>
+          <button class="vbtn dpad-right" id="vbtn-p1-right">▶</button>
+          <button class="vbtn dpad-down" id="vbtn-p1-down">▼</button>
+        </div>
+        <div class="action-buttons">
+          <button class="vbtn action-btn-a" id="vbtn-p1-a">A</button>
+        </div>
+      </div>
+
+      <!-- Player 2 Touch Controls (Activated in 2-Player modes) -->
+      <div class="p2-touch-group" id="p2-touch-container" style="display:none;">
+        <span class="touch-label">P2 CONTROLS</span>
+        <div class="dpad">
+          <button class="vbtn dpad-up" id="vbtn-p2-up">W</button>
+          <button class="vbtn dpad-left" id="vbtn-p2-left">A</button>
+          <button class="vbtn dpad-right" id="vbtn-p2-right">D</button>
+          <button class="vbtn dpad-down" id="vbtn-p2-down">S</button>
+        </div>
+        <div class="action-buttons">
+          <button class="vbtn action-btn-b" id="vbtn-p2-a">B</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Player Dashboard / Profile Modal -->
+  <div class="modal-backdrop" id="profile-modal" style="display: none;">
+    <div class="modal-card wide-modal">
+      <button class="modal-close" id="close-profile-modal">&times;</button>
+      <h2 class="section-title">🏆 Player Dashboard</h2>
+      <div class="profile-grid">
+        <div class="stat-card"><div class="stat-label">USER</div><div class="stat-value" id="profile-user-name">Guest</div></div>
+        <div class="stat-card"><div class="stat-label">GAMES PLAYED</div><div class="stat-value" id="profile-total-played">0</div></div>
+        <div class="stat-card"><div class="stat-label">FAVORITES</div><div class="stat-value" id="profile-total-favs">0</div></div>
+        <div class="stat-card"><div class="stat-label">2P MATCHES</div><div class="stat-value" id="profile-2p-matches">0</div></div>
+      </div>
+      <h3 style="margin-top:20px;">⭐ Favorite Games</h3>
+      <div class="games-grid mini-grid" id="profile-favs-grid"></div>
+    </div>
+  </div>
+
+  <!-- Login/Auth Modal -->
+  <div class="modal-backdrop" id="auth-modal" style="display: none;">
+    <div class="modal-card">
+      <button class="modal-close" id="close-auth-modal">&times;</button>
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="tab-login">Login</button>
+        <button class="auth-tab" id="tab-signup">Sign Up</button>
+      </div>
+
+      <form id="login-form" class="auth-form">
+        <div class="form-group"><label>Username</label><input type="text" id="login-user" required placeholder="Enter username"></div>
+        <div class="form-group"><label>Password</label><input type="password" id="login-pass" required placeholder="Enter password"></div>
+        <button type="submit" class="btn btn-primary full-width">Login</button>
+      </form>
+
+      <form id="signup-form" class="auth-form" style="display: none;">
+        <div class="form-group"><label>Username</label><input type="text" id="signup-user" required placeholder="Choose username"></div>
+        <div class="form-group"><label>Password</label><input type="password" id="signup-pass" required placeholder="Create password"></div>
+        <button type="submit" class="btn btn-primary full-width">Create Account</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-container">
+      <p>&copy; 2026 <strong>MikeyArcade Platform</strong>. All 500 Games Genuiely Playable. PWA Enabled.</p>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
